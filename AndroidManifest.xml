@@ -26,6 +26,8 @@
     <uses-permission android:name="android.permission.READ_COMPAT_CHANGE_CONFIG" />
     <uses-permission android:name="android.permission.LOG_COMPAT_CHANGE" />
 
+    <uses-permission android:name="android.permission.NETWORK_STACK" />
+
     <permission
             android:name="android.permission.SEND_CALL_LOG_CHANGE"
             android:label="Broadcast that a change happened to the call log."
