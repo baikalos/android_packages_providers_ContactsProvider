@@ -23,6 +23,7 @@ import static com.android.providers.contacts.util.PhoneAccountHandleMigrationUti
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
@@ -314,6 +315,8 @@ public class CallLogProvider extends ContentProvider {
     private VoicemailPermissions mVoicemailPermissions;
     private CallLogInsertionHelper mCallLogInsertionHelper;
     private SubscriptionManager mSubscriptionManager;
+    private ActivityManager mActivityManager;
+
 
     private final ThreadLocal<Boolean> mApplyingBatch = new ThreadLocal<>();
     private final ThreadLocal<Integer> mCallingUid = new ThreadLocal<>();
@@ -340,6 +343,7 @@ public class CallLogProvider extends ContentProvider {
             Log.d(Constants.PERFORMANCE_TAG, getProviderName() + ".onCreate start");
         }
         final Context context = getContext();
+        mActivityManager = context.getSystemService(ActivityManager.class);
         mDbHelper = getDatabaseHelper(context);
         mUseStrictPhoneNumberComparation =
             context.getResources().getBoolean(
@@ -464,12 +468,24 @@ public class CallLogProvider extends ContentProvider {
 
     private Cursor queryInternal(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
-        if (VERBOSE_LOGGING) {
+        if (true/*VERBOSE_LOGGING*/) {
             Log.v(TAG, "query: uri=" + uri + "  projection=" + Arrays.toString(projection) +
                     "  selection=[" + selection + "]  args=" + Arrays.toString(selectionArgs) +
                     "  order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
+                    " pkg=" + getCallingPackage() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
+        }
+
+        if( mActivityManager == null ) {
+            mActivityManager = getContext().getSystemService(ActivityManager.class);
+        }
+
+        if( mActivityManager != null ) {
+            if( mActivityManager.getBaikalPackageOption(getCallingPackage(),Binder.getCallingUid(),5,0) != 0 ) {
+                Log.v(TAG,"Blocked calllog access from :" + getCallingPackage() + "/" + Binder.getCallingUid());
+                return null;
+            }
         }
 
         queryForTesting(uri);

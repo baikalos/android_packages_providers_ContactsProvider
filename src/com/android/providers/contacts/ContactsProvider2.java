@@ -28,6 +28,7 @@ import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.annotation.Nullable;
 import android.annotation.WorkerThread;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -1433,6 +1434,8 @@ public class ContactsProvider2 extends AbstractContactsProvider
     /**
      * Sub-provider for handling profile requests against the profile database.
      */
+    private ActivityManager mActivityManager;
+
     private ProfileProvider mProfileProvider;
 
     private NameSplitter mNameSplitter;
@@ -1566,6 +1569,8 @@ public class ContactsProvider2 extends AbstractContactsProvider
         StrictMode.setThreadPolicy(
                 new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
+
+        mActivityManager = getContext().getSystemService(ActivityManager.class);
         mFastScrollingIndexCache = FastScrollingIndexCache.getInstance(getContext());
         mSubscriptionManager = getContext().getSystemService(SubscriptionManager.class);
         mContactsHelper = getDatabaseHelper();
@@ -5570,12 +5575,26 @@ public class ContactsProvider2 extends AbstractContactsProvider
 
     private Cursor queryInternal(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder, CancellationSignal cancellationSignal) {
-        if (VERBOSE_LOGGING) {
+        if (true /*VERBOSE_LOGGING*/) {
             Log.v(TAG, "query: uri=" + uri + "  projection=" + Arrays.toString(projection) +
-                    "  selection=[" + selection + "]  args=" + Arrays.toString(selectionArgs) +
-                    "  order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
+                    " selection=[" + selection + "] args=" + Arrays.toString(selectionArgs) +
+                    " order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
+                    " pkg=" + getCallingPackage() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
+        }
+
+        if( mActivityManager == null ) {
+            mActivityManager = getContext().getSystemService(ActivityManager.class);
+        }
+
+        if( mActivityManager != null ) {
+            if( mActivityManager.getBaikalPackageOption(getCallingPackage(),Binder.getCallingUid(),4,0) != 0 ) {
+                Log.w(TAG,"Blocked contacts access from :" + getCallingPackage() + "/" + Binder.getCallingUid());
+                return null;
+            }
+        } else {
+                Log.w(TAG,"Cant't get ActivityManager :" + getCallingPackage() + "/" + Binder.getCallingUid());
         }
 
         mContactsHelper.validateProjection(getCallingPackage(), projection);
