@@ -5580,7 +5580,7 @@ public class ContactsProvider2 extends AbstractContactsProvider
                     " selection=[" + selection + "] args=" + Arrays.toString(selectionArgs) +
                     " order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
-                    " pkg=" + getCallingPackage() +
+                    " pkg=" + getCallingPackageUnchecked() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
         }
 
@@ -5589,8 +5589,8 @@ public class ContactsProvider2 extends AbstractContactsProvider
         }
 
         if( mActivityManager != null ) {
-            if( mActivityManager.getBaikalPackageOption(getCallingPackage(),Binder.getCallingUid(),4,0) != 0 ) {
-                Log.w(TAG,"Blocked contacts access from :" + getCallingPackage() + "/" + Binder.getCallingUid());
+            if( mActivityManager.getBaikalPackageOption(getCallingPackageUnchecked(),Binder.getCallingUid(),4,0) != 0 ) {
+                Log.w(TAG,"Blocked contacts access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
                 return null;
             }
         } else {

@@ -473,7 +473,7 @@ public class CallLogProvider extends ContentProvider {
                     "  selection=[" + selection + "]  args=" + Arrays.toString(selectionArgs) +
                     "  order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
-                    " pkg=" + getCallingPackage() +
+                    " pkg=" + getCallingPackageUnchecked() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
         }
 
@@ -482,8 +482,8 @@ public class CallLogProvider extends ContentProvider {
         }
 
         if( mActivityManager != null ) {
-            if( mActivityManager.getBaikalPackageOption(getCallingPackage(),Binder.getCallingUid(),5,0) != 0 ) {
-                Log.v(TAG,"Blocked calllog access from :" + getCallingPackage() + "/" + Binder.getCallingUid());
+            if( mActivityManager.getBaikalPackageOption(getCallingPackageUnchecked(),Binder.getCallingUid(),5,0) != 0 ) {
+                Log.v(TAG,"Blocked calllog access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
                 return null;
             }
         }
