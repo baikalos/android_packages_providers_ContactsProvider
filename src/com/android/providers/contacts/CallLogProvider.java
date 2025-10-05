@@ -483,7 +483,7 @@ public class CallLogProvider extends ContentProvider {
 
         if( mActivityManager != null ) {
             if( mActivityManager.getBaikalPackageOption(getCallingPackageUnchecked(),Binder.getCallingUid(),5,0) != 0 ) {
-                Log.v(TAG,"Blocked calllog access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
+                Log.v(TAG,"Baikal blocked calllog access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
                 return null;
             }
         }

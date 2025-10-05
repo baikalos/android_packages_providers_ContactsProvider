@@ -5590,7 +5590,7 @@ public class ContactsProvider2 extends AbstractContactsProvider
 
         if( mActivityManager != null ) {
             if( mActivityManager.getBaikalPackageOption(getCallingPackageUnchecked(),Binder.getCallingUid(),4,0) != 0 ) {
-                Log.w(TAG,"Blocked contacts access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
+                Log.w(TAG,"Baikal blocked contacts access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
                 return null;
             }
         } else {
