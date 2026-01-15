@@ -24,6 +24,7 @@ import static com.android.providers.contacts.util.PhoneAccountHandleMigrationUti
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AppOpsManager;
+import android.baikalos.BaikalAppProfile;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -474,6 +475,12 @@ public class CallLogProvider extends ContentProvider {
                     "  order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
+        }
+
+        if( getContext().getBaikalContext().getBaikalPackageOption(getCallingPackageUnchecked(),
+                Binder.getCallingUid(),BaikalAppProfile.BAIKAL_OPCODE_BLOCK_CALLLOG,0) != 0 ) {
+            Log.v(TAG,"Baikal blocked calllog access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
+            return null;
         }
 
         queryForTesting(uri);

@@ -38,6 +38,7 @@ import android.app.AppOpsManager;
 import android.app.BroadcastOptions;
 import android.app.SearchManager;
 import android.app.compat.CompatChanges;
+import android.baikalos.BaikalAppProfile;
 import android.content.BroadcastReceiver;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -6038,6 +6039,12 @@ public class ContactsProvider2 extends AbstractContactsProvider
                     "  order=[" + sortOrder + "] CPID=" + Binder.getCallingPid() +
                     " CUID=" + Binder.getCallingUid() +
                     " User=" + UserUtils.getCurrentUserHandle(getContext()));
+        }
+
+        if( getContext().getBaikalContext().getBaikalPackageOption(getCallingPackageUnchecked(),
+            Binder.getCallingUid(),BaikalAppProfile.BAIKAL_OPCODE_BLOCK_CONTACTS,0) != 0 ) {
+                Log.w(TAG,"Baikal blocked contacts access from :" + getCallingPackageUnchecked() + "/" + Binder.getCallingUid());
+                return null;
         }
 
         mContactsHelper.validateProjection(getCallingPackage(), projection);
